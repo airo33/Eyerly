@@ -92,7 +92,7 @@ export async function purchasePlan(plan: PlanId): Promise<boolean> {
     return (
       typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined'
     );
-  } catch (e: unknown) {
+  } catch {
     // User cancellation is not an error worth surfacing.
     return false;
   }

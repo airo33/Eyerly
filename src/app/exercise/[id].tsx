@@ -30,7 +30,9 @@ export default function ExerciseSession() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recordedRef = useRef(false);
   const vibrationRef = useRef(settings.vibration);
-  vibrationRef.current = settings.vibration;
+  useEffect(() => {
+    vibrationRef.current = settings.vibration;
+  }, [settings.vibration]);
 
   useEffect(() => {
     if (!exercise) return;

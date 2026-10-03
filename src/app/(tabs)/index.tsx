@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   AppState,
@@ -54,11 +54,19 @@ export default function HomeScreen() {
   const weekBars = lastNDays(streak, 7);
   const weekTotal = weekBars.reduce((sum, b) => sum + b.count, 0);
 
-  const isPaused =
-    settings.pausedUntil !== null && settings.pausedUntil > Date.now();
+  // Ticking clock so the pause state/countdown stays current without calling
+  // Date.now() during render.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
-  // Auto-clear an expired pause: on mount, and whenever the app returns to the
-  // foreground (the pause hour may have elapsed while backgrounded).
+  const isPaused = settings.pausedUntil !== null && settings.pausedUntil > now;
+
+  // Auto-clear an expired pause: on mount, on each clock tick, and whenever the
+  // app returns to the foreground (the pause hour may have elapsed while
+  // backgrounded).
   useEffect(() => {
     if (!hydrated) return;
 
@@ -72,10 +80,13 @@ export default function HomeScreen() {
 
     clearIfExpired();
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') clearIfExpired();
+      if (state === 'active') {
+        setNow(Date.now());
+        clearIfExpired();
+      }
     });
     return () => sub.remove();
-  }, [hydrated, settings, update]);
+  }, [hydrated, settings, update, now]);
 
   const handleToggle = async (next: boolean) => {
     if (next) {
@@ -114,14 +125,16 @@ export default function HomeScreen() {
       update({ pausedUntil: null });
       if (settings.enabled) await rescheduleReminders(nextSettings);
     } else {
-      update({ pausedUntil: Date.now() + PAUSE_MS });
+      const t0 = Date.now();
+      setNow(t0);
+      update({ pausedUntil: t0 + PAUSE_MS });
       await cancelReminders();
     }
   };
 
   const pauseMinutesLeft =
     isPaused && settings.pausedUntil !== null
-      ? Math.max(1, Math.ceil((settings.pausedUntil - Date.now()) / 60000))
+      ? Math.max(1, Math.ceil((settings.pausedUntil - now) / 60000))
       : 0;
 
   const statusHint = isPaused

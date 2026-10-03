@@ -66,6 +66,11 @@ export async function saveSettings(settings: Settings): Promise<void> {
   }
 }
 
+/** Whether reminders are currently paused (pause window hasn't elapsed). */
+export function isPausedNow(settings: Pick<Settings, 'pausedUntil'>): boolean {
+  return settings.pausedUntil !== null && settings.pausedUntil > Date.now();
+}
+
 export function formatTime(hour: number, minute: number): string {
   const h = hour.toString().padStart(2, '0');
   const m = minute.toString().padStart(2, '0');

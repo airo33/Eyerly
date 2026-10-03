@@ -26,7 +26,7 @@ import { useSettings } from '@/hooks/use-settings';
 import { useTheme } from '@/hooks/use-theme';
 import { rescheduleReminders } from '@/lib/notifications';
 import { restorePurchases } from '@/lib/purchases';
-import { formatTime } from '@/lib/settings';
+import { formatTime, isPausedNow, type Settings } from '@/lib/settings';
 import { playPreview } from '@/lib/sound-preview';
 
 type Row = {
@@ -60,6 +60,16 @@ export default function SettingsScreen() {
       ok ? t('paywall.restoredTitle') : t('paywall.nothingTitle'),
       ok ? t('paywall.restoredBody') : t('paywall.nothingBody'),
     );
+  };
+
+  // Apply a settings patch and, if reminders are live, reschedule them so the
+  // already-scheduled notifications pick up the new language/sound/hours.
+  const applyReminderChange = async (patch: Partial<Settings>) => {
+    update(patch);
+    const next = { ...settings, ...patch };
+    if (next.enabled && !isPausedNow(next)) {
+      await rescheduleReminders(next);
+    }
   };
 
   const handleEditName = () => {
@@ -123,7 +133,7 @@ export default function SettingsScreen() {
           title: t('settings.soundRow'),
           toggle: {
             value: settings.sound,
-            onValueChange: (v) => update({ sound: v }),
+            onValueChange: (v) => applyReminderChange({ sound: v }),
           },
         },
         {
@@ -244,6 +254,7 @@ export default function SettingsScreen() {
       </ScrollView>
 
       <ActiveHoursModal
+        key={activeHoursOpen ? 'open' : 'closed'}
         visible={activeHoursOpen}
         startHour={settings.activeStartHour}
         startMinute={settings.activeStartMinute}
@@ -251,25 +262,13 @@ export default function SettingsScreen() {
         endMinute={settings.activeEndMinute}
         onCancel={() => setActiveHoursOpen(false)}
         onSave={async (sh, sm, eh, em) => {
-          const nextSettings = {
-            ...settings,
-            activeStartHour: sh,
-            activeStartMinute: sm,
-            activeEndHour: eh,
-            activeEndMinute: em,
-          };
-          update({
+          setActiveHoursOpen(false);
+          await applyReminderChange({
             activeStartHour: sh,
             activeStartMinute: sm,
             activeEndHour: eh,
             activeEndMinute: em,
           });
-          setActiveHoursOpen(false);
-          const isPaused =
-            settings.pausedUntil !== null && settings.pausedUntil > Date.now();
-          if (settings.enabled && !isPaused) {
-            await rescheduleReminders(nextSettings);
-          }
         }}
       />
 
@@ -303,8 +302,8 @@ export default function SettingsScreen() {
           sublabel: l.label,
         }))}
         onSelect={(key) => {
-          update({ language: key as LanguageCode });
           setLanguageOpen(false);
+          applyReminderChange({ language: key as LanguageCode });
         }}
         onCancel={() => setLanguageOpen(false)}
       />
@@ -317,7 +316,7 @@ export default function SettingsScreen() {
         items={SOUND_PRESETS.map((p) => ({ key: p, label: presetLabel(p) }))}
         onSelect={(key) => {
           const preset = key as SoundPreset;
-          update({ soundPreset: preset });
+          applyReminderChange({ soundPreset: preset });
           playPreview(preset);
         }}
         onCancel={() => setSoundOpen(false)}
