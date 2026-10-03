@@ -1,18 +1,62 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider,
+  useRouter,
+} from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { Colors } from '@/constants/theme';
+import { PurchasesProvider } from '@/hooks/use-purchases';
+import { SettingsProvider, useSettings } from '@/hooks/use-settings';
+import { StreakProvider } from '@/hooks/use-streak';
 
-SplashScreen.preventAutoHideAsync();
+function OnboardingGuard() {
+  const router = useRouter();
+  const { settings, hydrated } = useSettings();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    if (hydrated && !settings.onboardingDone) {
+      router.replace('/onboarding');
+    }
+  }, [hydrated, settings.onboardingDone, router]);
+
+  return null;
+}
+
+export default function RootLayout() {
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const colors = Colors[scheme];
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <SettingsProvider>
+          <StreakProvider>
+            <PurchasesProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colors.background },
+                }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="onboarding"
+                  options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="exercise/[id]" />
+                <Stack.Screen name="paywall" />
+              </Stack>
+              <OnboardingGuard />
+              <StatusBar style="auto" />
+            </PurchasesProvider>
+          </StreakProvider>
+        </SettingsProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
