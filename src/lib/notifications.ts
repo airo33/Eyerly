@@ -78,13 +78,74 @@ export async function sendTestNotification(): Promise<void> {
   });
 }
 
+type TriggerInput = Notifications.SchedulableNotificationTriggerInput;
+
+/** Next time (ms) the given wall-clock slot occurs, today if still ahead. */
+function nextOccurrence(hour: number, minute: number, from: number): Date {
+  const d = new Date(from);
+  d.setHours(hour, minute, 0, 0);
+  if (d.getTime() <= from) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+/**
+ * Triggers for one slot. Normally a daily repeat. If its next occurrence falls
+ * inside the pause window, the slot is skipped just that once: it is scheduled
+ * on the other six weekdays (weekly repeats) plus a one-off for the same
+ * weekday next week. Local notifications can't run code when they fire, so
+ * this is what lets reminders resume on their own after a pause even if the
+ * app is never reopened. Opening the app restores the plain daily schedule.
+ */
+function triggersForSlot(
+  hour: number,
+  minute: number,
+  pausedUntil: number | null,
+  now: number,
+): TriggerInput[] {
+  const next = nextOccurrence(hour, minute, now);
+  const inPause = pausedUntil !== null && next.getTime() < pausedUntil;
+  if (!inPause) {
+    return [
+      {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        hour,
+        minute,
+        repeats: true,
+      },
+    ];
+  }
+
+  const skippedWeekday = next.getDay() + 1; // expo: 1 = Sunday
+  const triggers: TriggerInput[] = [];
+  for (let weekday = 1; weekday <= 7; weekday++) {
+    if (weekday === skippedWeekday) continue;
+    triggers.push({
+      type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+      weekday,
+      hour,
+      minute,
+    });
+  }
+  const nextWeek = new Date(next);
+  nextWeek.setDate(nextWeek.getDate() + 7);
+  triggers.push({
+    type: Notifications.SchedulableTriggerInputTypes.DATE,
+    date: nextWeek,
+  });
+  return triggers;
+}
+
 export async function rescheduleReminders(settings: Settings): Promise<void> {
   if (Platform.OS === 'web') return;
   await cancelReminders();
 
-  const isPaused =
-    settings.pausedUntil !== null && settings.pausedUntil > Date.now();
-  if (!settings.enabled || isPaused) return;
+  if (!settings.enabled) return;
+
+  const now = Date.now();
+  const pausedUntil =
+    settings.pausedUntil !== null && settings.pausedUntil > now
+      ? settings.pausedUntil
+      : null;
 
   const allSlots = buildSlots(
     settings.intervalMin,
@@ -109,21 +170,30 @@ export async function rescheduleReminders(settings: Settings): Promise<void> {
       ? true
       : SOUND_FILES[settings.soundPreset];
 
-  for (let i = 0; i < slots.length; i++) {
-    const { hour, minute } = slots[i];
-    const msg = pickMessage(i, locale);
+  // Normal daily slots first so that, if pause-skipped slots push us over the
+  // cap, it's the extra weekday coverage that gets trimmed, not regular slots.
+  const jobs: { index: number; trigger: TriggerInput; extra: boolean }[] = [];
+  slots.forEach(({ hour, minute }, index) => {
+    triggersForSlot(hour, minute, pausedUntil, now).forEach((trigger) => {
+      jobs.push({
+        index,
+        trigger,
+        extra:
+          trigger.type !== Notifications.SchedulableTriggerInputTypes.CALENDAR,
+      });
+    });
+  });
+  jobs.sort((a, b) => Number(a.extra) - Number(b.extra));
+
+  for (const { index, trigger } of jobs.slice(0, MAX_SCHEDULED)) {
+    const msg = pickMessage(index, locale);
     await Notifications.scheduleNotificationAsync({
       content: {
         title: msg.title,
         body: msg.body,
         sound,
       },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        hour,
-        minute,
-        repeats: true,
-      },
+      trigger,
     });
   }
 }

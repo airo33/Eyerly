@@ -26,7 +26,7 @@ import { useSettings } from '@/hooks/use-settings';
 import { useTheme } from '@/hooks/use-theme';
 import { rescheduleReminders } from '@/lib/notifications';
 import { restorePurchases } from '@/lib/purchases';
-import { formatTime, isPausedNow, type Settings } from '@/lib/settings';
+import { formatTime, type Settings } from '@/lib/settings';
 import { playPreview } from '@/lib/sound-preview';
 
 type Row = {
@@ -67,7 +67,7 @@ export default function SettingsScreen() {
   const applyReminderChange = async (patch: Partial<Settings>) => {
     update(patch);
     const next = { ...settings, ...patch };
-    if (next.enabled && !isPausedNow(next)) {
+    if (next.enabled) {
       await rescheduleReminders(next);
     }
   };

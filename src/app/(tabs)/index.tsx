@@ -114,7 +114,7 @@ export default function HomeScreen() {
     }
     const nextSettings = { ...settings, intervalMin: opt };
     update({ intervalMin: opt });
-    if (settings.enabled && !isPaused) {
+    if (settings.enabled) {
       await rescheduleReminders(nextSettings);
     }
   };
@@ -126,9 +126,14 @@ export default function HomeScreen() {
       if (settings.enabled) await rescheduleReminders(nextSettings);
     } else {
       const t0 = Date.now();
+      const pausedUntil = t0 + PAUSE_MS;
       setNow(t0);
-      update({ pausedUntil: t0 + PAUSE_MS });
-      await cancelReminders();
+      update({ pausedUntil });
+      // Skips just the pause window; everything else stays scheduled so
+      // reminders resume on their own even if the app isn't reopened.
+      if (settings.enabled) {
+        await rescheduleReminders({ ...settings, pausedUntil });
+      }
     }
   };
 
