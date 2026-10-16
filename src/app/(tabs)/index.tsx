@@ -92,10 +92,7 @@ export default function HomeScreen() {
     if (next) {
       const granted = await requestPermission();
       if (!granted) {
-        Alert.alert(
-          'Notifications blocked',
-          'Enable notifications for Eyerly in iOS Settings to get reminders.',
-        );
+        Alert.alert(t('home.notifBlockedTitle'), t('home.notifBlockedBody'));
         return;
       }
       const nextSettings = { ...settings, enabled: true, pausedUntil: null };
@@ -290,7 +287,7 @@ export default function HomeScreen() {
             onPress={async () => {
               const granted = await requestPermission();
               if (!granted) {
-                Alert.alert('Notifications blocked');
+                Alert.alert(t('home.notifBlockedTitle'));
                 return;
               }
               await sendTestNotification();

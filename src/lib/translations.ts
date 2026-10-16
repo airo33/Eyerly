@@ -33,6 +33,9 @@ export const translations = {
       tagline: 'Give your eyes a break, every %{min} minutes.',
       reminders: 'Reminders',
       off: 'Off',
+      notifBlockedTitle: 'Notifications blocked',
+      notifBlockedBody:
+        'Enable notifications for Eyerly in your device Settings to get reminders.',
       paused: 'Paused · %{min} min left',
       every: 'Every %{min} min · %{start} – %{end}',
       interval: 'Interval',
@@ -187,6 +190,9 @@ export const translations = {
       tagline: 'Descansa la vista cada %{min} minutos.',
       reminders: 'Recordatorios',
       off: 'Desactivado',
+      notifBlockedTitle: 'Notificaciones bloqueadas',
+      notifBlockedBody:
+        'Activa las notificaciones de Eyerly en los Ajustes del dispositivo para recibir recordatorios.',
       paused: 'En pausa · %{min} min restantes',
       every: 'Cada %{min} min · %{start} – %{end}',
       interval: 'Intervalo',
@@ -338,6 +344,9 @@ export const translations = {
       tagline: 'Reposez vos yeux toutes les %{min} minutes.',
       reminders: 'Rappels',
       off: 'Désactivé',
+      notifBlockedTitle: 'Notifications bloquées',
+      notifBlockedBody:
+        "Activez les notifications d'Eyerly dans les Réglages de votre appareil pour recevoir des rappels.",
       paused: 'En pause · %{min} min restantes',
       every: 'Toutes les %{min} min · %{start} – %{end}',
       interval: 'Intervalle',
@@ -489,6 +498,9 @@ export const translations = {
       tagline: 'Gönn deinen Augen alle %{min} Minuten eine Pause.',
       reminders: 'Erinnerungen',
       off: 'Aus',
+      notifBlockedTitle: 'Benachrichtigungen blockiert',
+      notifBlockedBody:
+        'Aktiviere Benachrichtigungen für Eyerly in den Geräteeinstellungen, um Erinnerungen zu erhalten.',
       paused: 'Pausiert · noch %{min} Min',
       every: 'Alle %{min} Min · %{start} – %{end}',
       interval: 'Intervall',
@@ -637,6 +649,8 @@ export const translations = {
       tagline: '每 %{min} 分钟让眼睛休息一下。',
       reminders: '提醒',
       off: '关闭',
+      notifBlockedTitle: '通知已被关闭',
+      notifBlockedBody: '请在设备设置中为 Eyerly 开启通知，以接收提醒。',
       paused: '已暂停 · 还剩 %{min} 分钟',
       every: '每 %{min} 分钟 · %{start} – %{end}',
       interval: '间隔',

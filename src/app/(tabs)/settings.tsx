@@ -3,7 +3,6 @@ import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import {
   Alert,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActiveHoursModal } from '@/components/active-hours-modal';
 import { SelectModal } from '@/components/select-modal';
+import { TextPromptModal } from '@/components/text-prompt-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { COUNTRIES, findCountry, flagEmoji } from '@/constants/countries';
@@ -49,6 +49,7 @@ export default function SettingsScreen() {
   const [countryOpen, setCountryOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [soundOpen, setSoundOpen] = useState(false);
+  const [nameOpen, setNameOpen] = useState(false);
 
   const presetLabel = (p: SoundPreset) =>
     t(`settings.preset${p.charAt(0).toUpperCase()}${p.slice(1)}`);
@@ -72,17 +73,7 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleEditName = () => {
-    if (Platform.OS === 'ios' && Alert.prompt) {
-      Alert.prompt(
-        t('profile.name'),
-        undefined,
-        (text) => update({ name: (text ?? '').trim() }),
-        'plain-text',
-        settings.name,
-      );
-    }
-  };
+  const handleEditName = () => setNameOpen(true);
 
   const country = findCountry(settings.countryCode);
   const currentLang = SUPPORTED_LANGUAGES.find((l) => l.code === language);
@@ -269,6 +260,21 @@ export default function SettingsScreen() {
             activeEndHour: eh,
             activeEndMinute: em,
           });
+        }}
+      />
+
+      <TextPromptModal
+        key={nameOpen ? 'name-open' : 'name-closed'}
+        visible={nameOpen}
+        title={t('profile.name')}
+        initialValue={settings.name}
+        placeholder={t('profile.namePlaceholder')}
+        cancelLabel={t('common.cancel')}
+        saveLabel={t('common.save')}
+        onCancel={() => setNameOpen(false)}
+        onSave={(value) => {
+          update({ name: value });
+          setNameOpen(false);
         }}
       />
 
