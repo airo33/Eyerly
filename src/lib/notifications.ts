@@ -96,7 +96,7 @@ function nextOccurrence(hour: number, minute: number, from: number): Date {
  * this is what lets reminders resume on their own after a pause even if the
  * app is never reopened. Opening the app restores the plain daily schedule.
  */
-function triggersForSlot(
+export function triggersForSlot(
   hour: number,
   minute: number,
   pausedUntil: number | null,
