@@ -239,6 +239,13 @@ export default function SettingsScreen() {
         <ThemedText
           type="small"
           themeColor="textSecondary"
+          style={styles.disclaimer}>
+          {t('common.disclaimer')}
+        </ThemedText>
+
+        <ThemedText
+          type="small"
+          themeColor="textSecondary"
           style={styles.version}>
           Eyerly v0.1.0
         </ThemedText>
@@ -373,6 +380,10 @@ const styles = StyleSheet.create({
   },
   hint: {
     flexShrink: 1,
+  },
+  disclaimer: {
+    textAlign: 'center',
+    paddingHorizontal: Spacing.two,
   },
   version: {
     textAlign: 'center',

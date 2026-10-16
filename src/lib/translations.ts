@@ -7,6 +7,8 @@ export const translations = {
       cancel: 'Cancel',
       save: 'Save',
       getStarted: 'Get started',
+      disclaimer:
+        'Eyerly offers general wellness tips and is not medical advice. It does not diagnose, treat, or prevent any condition. If you have eye pain, vision changes, or persistent discomfort, see an eye care professional.',
     },
     onboarding: {
       p1Title: 'Your eyes work hard',
@@ -163,6 +165,8 @@ export const translations = {
       cancel: 'Cancelar',
       save: 'Guardar',
       getStarted: 'Empezar',
+      disclaimer:
+        'Eyerly ofrece consejos generales de bienestar y no constituye asesoramiento médico. No diagnostica, trata ni previene ninguna afección. Si tienes dolor ocular, cambios en la visión o molestias persistentes, consulta a un profesional de la salud visual.',
     },
     onboarding: {
       p1Title: 'Tus ojos trabajan mucho',
@@ -317,6 +321,8 @@ export const translations = {
       cancel: 'Annuler',
       save: 'Enregistrer',
       getStarted: 'Commencer',
+      disclaimer:
+        'Eyerly propose des conseils généraux de bien-être et ne constitue pas un avis médical. L’application ne diagnostique, ne traite et ne prévient aucune affection. En cas de douleur oculaire, de changement de la vision ou de gêne persistante, consultez un professionnel de la santé oculaire.',
     },
     onboarding: {
       p1Title: 'Vos yeux travaillent dur',
@@ -471,6 +477,8 @@ export const translations = {
       cancel: 'Abbrechen',
       save: 'Speichern',
       getStarted: 'Loslegen',
+      disclaimer:
+        'Eyerly bietet allgemeine Wellness-Tipps und ersetzt keine ärztliche Beratung. Die App diagnostiziert, behandelt oder verhindert keine Erkrankung. Bei Augenschmerzen, Sehveränderungen oder anhaltenden Beschwerden wende dich an eine Augenärztin oder einen Augenarzt.',
     },
     onboarding: {
       p1Title: 'Deine Augen leisten viel',
@@ -625,6 +633,8 @@ export const translations = {
       cancel: '取消',
       save: '保存',
       getStarted: '开始',
+      disclaimer:
+        'Eyerly 仅提供一般性的健康护眼建议，不构成医疗建议，也不用于诊断、治疗或预防任何疾病。如出现眼痛、视力变化或持续不适，请咨询眼科专业人员。',
     },
     onboarding: {
       p1Title: '你的眼睛很辛苦',

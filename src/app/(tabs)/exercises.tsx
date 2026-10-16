@@ -80,6 +80,13 @@ export default function ExercisesScreen() {
             </Pressable>
           ))}
         </View>
+
+        <ThemedText
+          type="small"
+          themeColor="textSecondary"
+          style={styles.disclaimer}>
+          {t('common.disclaimer')}
+        </ThemedText>
       </ScrollView>
     </ThemedView>
   );
@@ -102,6 +109,10 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: Spacing.two,
+  },
+  disclaimer: {
+    textAlign: 'center',
+    paddingHorizontal: Spacing.two,
   },
   itemPressable: {
     borderRadius: Spacing.three,
